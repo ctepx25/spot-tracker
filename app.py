@@ -129,7 +129,8 @@ def send_telegram_alert(msg):
             f"📍 *Coordinates:* `{msg.latitude}, {msg.longitude}`\n"
             f"⛰️ *Altitude:* {int(msg.altitude)}m\n"
             f"🔋 *Battery:* {msg.batteryState}\n\n"
-            f"🗺️ [View on Google Maps]({google_maps_url})"
+            f"🗺️ [View on Google Maps]({google_maps_url})\n"
+            f"🌐 [View Live Track Board](https://livetrackboard.ydns.eu/)"
         )
     else:  # CUSTOM, OK, etc.
         content = msg.messageContent or "No custom text content provided."
@@ -142,7 +143,8 @@ def send_telegram_alert(msg):
             f"📍 *Coordinates:* `{msg.latitude}, {msg.longitude}`\n"
             f"⛰️ *Altitude:* {int(msg.altitude)}m\n"
             f"🔋 *Battery:* {msg.batteryState}\n\n"
-            f"🗺️ [View on Google Maps]({google_maps_url})"
+            f"🗺️ [View on Google Maps]({google_maps_url})\n"
+            f"🌐 [View Live Track Board](https://livetrackboard.ydns.eu/)"
         )
 
     try:
@@ -422,9 +424,9 @@ def map_view():
         control_scale=True
     )
 
-    # Add multiple standard built-in map layers
-    folium.TileLayer("OpenStreetMap", name="Open Street Map").add_to(folium_map)
+    # Add multiple standard built-in map layers (CartoDB Positron first as default)
     folium.TileLayer("CartoDB Positron", name="CartoDB Positron (Light)").add_to(folium_map)
+    folium.TileLayer("OpenStreetMap", name="Open Street Map").add_to(folium_map)
     folium.TileLayer("CartoDB Dark_Matter", name="CartoDB Dark Matter (Dark)").add_to(folium_map)
 
     # Add Layer Toggle Control widget on the map UI
@@ -462,6 +464,10 @@ def map_view():
             )
             if pt.messageContent:
                 popup_html += f"<br><b style='color:#e67e22;'>Msg:</b> \"{pt.messageContent}\""
+            
+            # Google Maps Link inside pop-up
+            gmaps_url = f"https://maps.google.com/?q={pt.latitude},{pt.longitude}"
+            popup_html += f"<br><br><a href='{gmaps_url}' target='_blank' rel='noopener noreferrer' style='color:#3b82f6; text-decoration:none; font-weight:600;'>🗺️ View on Google Maps</a>"
             popup_html += "</div>"
 
             # 1. Start point of this day's track
