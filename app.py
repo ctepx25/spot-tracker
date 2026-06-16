@@ -351,13 +351,20 @@ def map_view():
         zoom_level = 3
 
     # Generate Folium Map
-    # Use standard modern leaflet map stylesheet tiles
     folium_map = folium.Map(
         location=[center_lat, center_lon],
         zoom_start=zoom_level,
-        tiles="OpenStreetMap",
+        tiles=None,
         control_scale=True
     )
+
+    # Add multiple standard built-in map layers
+    folium.TileLayer("OpenStreetMap", name="Open Street Map").add_to(folium_map)
+    folium.TileLayer("CartoDB Positron", name="CartoDB Positron (Light)").add_to(folium_map)
+    folium.TileLayer("CartoDB Dark_Matter", name="CartoDB Dark Matter (Dark)").add_to(folium_map)
+
+    # Add Layer Toggle Control widget on the map UI
+    folium.LayerControl(position="topright").add_to(folium_map)
 
     if points:
         # Draw path polyline connecting all points
