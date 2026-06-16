@@ -125,24 +125,20 @@ def send_telegram_alert(msg):
         text = (
             f"🛰️ *New Track Point Detected!*\n\n"
             f"👤 *Device:* {msg.messengerName} ({msg.modelId})\n"
+            f"🏷️ *Type:* {msg.messageType}\n"
             f"📅 *Time:* {friendly_time}\n"
-            f"📍 *Coordinates:* `{msg.latitude}, {msg.longitude}`\n"
-            f"⛰️ *Altitude:* {int(msg.altitude)}m\n"
-            f"🔋 *Battery:* {msg.batteryState}\n\n"
+            f"📍 *Coordinates:* `{msg.latitude}, {msg.longitude}`\n\n"
             f"🗺️ [View on Google Maps]({google_maps_url})\n"
             f"🌐 [View Live Track Board](https://livetrackboard.ydns.eu/)"
         )
     else:  # CUSTOM, OK, etc.
         content = msg.messageContent or "No custom text content provided."
         text = (
-            f"💬 *New Message Received!*\n\n"
             f"👤 *Device:* {msg.messengerName} ({msg.modelId})\n"
+            f"📝 *Message:* \"{content}\"\n"
             f"🏷️ *Type:* {msg.messageType}\n"
             f"📅 *Time:* {friendly_time}\n"
-            f"📝 *Message:* \"{content}\"\n"
-            f"📍 *Coordinates:* `{msg.latitude}, {msg.longitude}`\n"
-            f"⛰️ *Altitude:* {int(msg.altitude)}m\n"
-            f"🔋 *Battery:* {msg.batteryState}\n\n"
+            f"📍 *Coordinates:* `{msg.latitude}, {msg.longitude}`\n\n"
             f"🗺️ [View on Google Maps]({google_maps_url})\n"
             f"🌐 [View Live Track Board](https://livetrackboard.ydns.eu/)"
         )

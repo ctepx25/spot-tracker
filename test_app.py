@@ -147,7 +147,8 @@ class SpotTrackerTestCase(unittest.TestCase):
         # Verify notification contains custom content
         self.assertTrue(mock_bot.send_message.called)
         args, _ = mock_bot.send_message.call_args
-        self.assertIn("New Message Received", args[1])
+        self.assertIn("Device:", args[1])
+        self.assertIn("Message:", args[1])
         self.assertIn("I reached the summit!", args[1])
 
     @patch("requests.get")
@@ -288,7 +289,7 @@ class SpotTrackerTestCase(unittest.TestCase):
         }
         scrape_spot_feed()
         self.assertEqual(mock_bot.send_message.call_count, 1)
-        self.assertIn("New Message Received", mock_bot.send_message.call_args[0][1])
+        self.assertIn("Message:", mock_bot.send_message.call_args[0][1])
 
         # Reset bot mock
         mock_bot.send_message.reset_mock()
