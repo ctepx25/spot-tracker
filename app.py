@@ -145,6 +145,29 @@ def send_telegram_alert(msg):
         logger.error(f"Error sending Telegram notification: {e}")
 
 
+def send_startup_notification():
+    """Sends a startup test notification to the Telegram channel on application launch."""
+    if not bot or not TELEGRAM_CHAT_ID:
+        logger.info("Skipping Telegram startup notification (Bot not configured).")
+        return
+
+    current_time = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+    text = (
+        f"🚀 *SPOT Satellite Tracker Started Successfully!*\n\n"
+        f"📊 *Current Status:*\n"
+        f"📡 *Feed ID:* `{FEED_ID}`\n"
+        f"🔄 *Scraper Interval:* `{SCRAPE_INTERVAL}s`\n"
+        f"📁 *Database:* `SQLite`\n"
+        f"📅 *Startup Time:* `{current_time} UTC`\n\n"
+        f"Ready to track satellite data and deliver notifications!"
+    )
+    try:
+        bot.send_message(TELEGRAM_CHAT_ID, text, parse_mode="Markdown")
+        logger.info("Telegram startup test notification sent successfully.")
+    except Exception as e:
+        logger.error(f"Failed to send Telegram startup notification: {e}")
+
+
 def scrape_spot_feed():
     """Scrapes the SPOT satellite tracker JSON endpoint and upserts data into SQLite."""
     # Run database tasks inside Flask Application Context
@@ -407,6 +430,9 @@ with app.app_context():
     if os.getenv("FLASK_ENV") != "testing":
         logger.info("Running initial SPOT feed scrape on startup...")
         scrape_spot_feed()
+        
+        logger.info("Sending Telegram startup notification...")
+        send_startup_notification()
 
 # Start background scheduler
 scheduler.init_app(app)
