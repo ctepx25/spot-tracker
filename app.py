@@ -421,10 +421,10 @@ def map_view():
     )
 
     # Add multiple standard built-in map layers (CartoDB Positron first as default)
-    folium.TileLayer("CartoDB Positron", name="CartoDB Positron (Light)").add_to(folium_map)
+
     folium.TileLayer("OpenStreetMap", name="Open Street Map").add_to(folium_map)
     folium.TileLayer("CartoDB Dark_Matter", name="CartoDB Dark Matter (Dark)").add_to(folium_map)
-
+    folium.TileLayer("CartoDB Positron", name="CartoDB Positron (Light)").add_to(folium_map)
     # Add Layer Toggle Control widget on the map UI
     folium.LayerControl(position="topright").add_to(folium_map)
 
