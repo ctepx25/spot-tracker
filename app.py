@@ -123,24 +123,25 @@ def send_telegram_alert(msg):
 
     if msg.messageType == "TRACK":
         text = (
-            f"🛰️ *New Track Point Detected!*\n\n"
+            f"🛰️ *Sattelite Tracker Started!*\n\n"
             f"👤 *Device:* {msg.messengerName} ({msg.modelId})\n"
             f"🏷️ *Type:* {msg.messageType}\n"
             f"📅 *Time:* {friendly_time}\n"
             f"📍 *Coordinates:* `{msg.latitude}, {msg.longitude}`\n\n"
             f"🗺️ [View on Google Maps]({google_maps_url})\n"
-            f"🌐 [View Live Track Board](https://livetrackboard.ydns.eu/)"
+            f"🌐 [Tracker Dashboard](https://livetrackboard.ydns.eu/)"
         )
     else:  # CUSTOM, OK, etc.
         content = msg.messageContent or "No custom text content provided."
         text = (
+            f"💬 *Sattelite Tracker Message*\n\n"
             f"👤 *Device:* {msg.messengerName} ({msg.modelId})\n"
             f"📝 *Message:* \"{content}\"\n"
             f"🏷️ *Type:* {msg.messageType}\n"
             f"📅 *Time:* {friendly_time}\n"
             f"📍 *Coordinates:* `{msg.latitude}, {msg.longitude}`\n\n"
             f"🗺️ [View on Google Maps]({google_maps_url})\n"
-            f"🌐 [View Live Track Board](https://livetrackboard.ydns.eu/)"
+            f"🌐 [Tracker Dashboard](https://livetrackboard.ydns.eu/)"
         )
 
     try:

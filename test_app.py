@@ -110,7 +110,7 @@ class SpotTrackerTestCase(unittest.TestCase):
         self.assertTrue(mock_bot.send_message.called)
         args, kwargs = mock_bot.send_message.call_args
         self.assertEqual(args[0], "-987654321")  # Chat ID
-        self.assertIn("New Track Point Detected", args[1])  # Alert title
+        self.assertIn("Sattelite Tracker Started", args[1])  # Alert title
 
     @patch("requests.get")
     @patch("app.bot")
@@ -147,6 +147,7 @@ class SpotTrackerTestCase(unittest.TestCase):
         # Verify notification contains custom content
         self.assertTrue(mock_bot.send_message.called)
         args, _ = mock_bot.send_message.call_args
+        self.assertIn("Sattelite Tracker Message", args[1])
         self.assertIn("Device:", args[1])
         self.assertIn("Message:", args[1])
         self.assertIn("I reached the summit!", args[1])
@@ -234,7 +235,7 @@ class SpotTrackerTestCase(unittest.TestCase):
         mock_get.return_value = mock_response
         scrape_spot_feed()
         self.assertEqual(mock_bot.send_message.call_count, 1)
-        self.assertIn("New Track Point Detected", mock_bot.send_message.call_args[0][1])
+        self.assertIn("Sattelite Tracker Started", mock_bot.send_message.call_args[0][1])
 
         # Reset bot mock
         mock_bot.send_message.reset_mock()
@@ -318,7 +319,7 @@ class SpotTrackerTestCase(unittest.TestCase):
         }
         scrape_spot_feed()
         self.assertEqual(mock_bot.send_message.call_count, 1)
-        self.assertIn("New Track Point Detected", mock_bot.send_message.call_args[0][1])
+        self.assertIn("Sattelite Tracker Started", mock_bot.send_message.call_args[0][1])
 
         # Reset bot mock
         mock_bot.send_message.reset_mock()
@@ -394,4 +395,62 @@ class SpotTrackerTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "send":
+        # Load real local environment variables from .env
+        from dotenv import load_dotenv
+        load_dotenv()
+
+        # Import the real Flask app, db, and sender function
+        from app import app, db, Message, send_telegram_alert, bot, TELEGRAM_CHAT_ID
+
+        print("==================================================")
+        print("🚀 Telegram Live Test Notification Dispatcher")
+        print("==================================================")
+        print(f"Chat ID: {TELEGRAM_CHAT_ID}")
+        print(f"Bot Configured: {bool(bot)}")
+        print("==================================================")
+
+        if not bot or not TELEGRAM_CHAT_ID:
+            print("❌ Error: Telegram bot token or chat ID not set in your .env file!")
+            sys.exit(1)
+
+        with app.app_context():
+            # Build and send OK message using example data from the feed
+            print("\n📬 1. Dispatching Test 'OK' Event...")
+            ok_msg = Message(
+                id=2457111472,
+                messengerId="0-8335246",
+                messengerName="Andrey",
+                modelId="SPOT2",
+                messageType="OK",
+                dateTime="2026-06-16T14:49:36+0000",
+                unixTime=1781621376,
+                latitude=32.16047,
+                longitude=34.83119,
+                altitude=0.0,
+                batteryState="GOOD",
+                messageContent="Pilot 282 Andrey Badikov OK"
+            )
+            send_telegram_alert(ok_msg)
+
+            # Build and send TRACK message using example data from the feed
+            print("\n🛰️ 2. Dispatching Test 'TRACK' Event...")
+            track_msg = Message(
+                id=2457079320,
+                messengerId="0-8335246",
+                messengerName="Andrey",
+                modelId="SPOT2",
+                messageType="TRACK",
+                dateTime="2026-06-16T13:38:58+0000",
+                unixTime=1781617138,
+                latitude=32.1572,
+                longitude=34.83395,
+                altitude=0.0,
+                batteryState="GOOD"
+            )
+            send_telegram_alert(track_msg)
+
+            print("\n✅ Test messages dispatched successfully! Check your Telegram chat.")
+    else:
+        unittest.main()
