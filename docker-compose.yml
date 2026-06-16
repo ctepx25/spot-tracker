@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  spot-tracker:
+    build: .
+    container_name: spot-tracker
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛰️ SPOT Satellite Live Tracker</title>
+    <style>
+        :root {
+            --bg-color: #0f0f12;
+            --card-bg: rgba(26, 26, 34, 0.75);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-color: #f1f1f4;
+            --text-muted: #9a9ab0;
+            --accent-blue: #3b82f6;
+            --accent-blue-hover: #2563eb;
+            --success-green: #10b981;
+            --warning-amber: #f59e0b;
+            --danger-red: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 40%);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            margin-bottom: 24px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-section h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 6px 12px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--success-green);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--success-green);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        /* Dashboard Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Sidebar Panels */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            padding: 24px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Date Picker Form */
+        .filter-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .form-group input[type="date"] {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input[type="date"]:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-blue-hover);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            margin-top: 8px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Stats List */
+        .stats-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding-bottom: 12px;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .stat-value {
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-good {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success-green);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-low {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning-amber);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .badge-type {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent-blue);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        /* Map Iframe Panel */
+        .map-container {
+            position: relative;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            height: 100%;
+            min-height: 650px;
+        }
+
+        .map-iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 650px;
+            border: none;
+            display: block;
+        }
+
+        .no-data-msg {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 650px;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 40px;
+        }
+
+        .no-data-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Dashboard Header -->
+        <header>
+            <div class="logo-section">
+                <h1>🛰️ SPOT Satellite Tracker</h1>
+            </div>
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                Scraper Active (60s)
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <div class="dashboard-grid">
+            
+            <!-- Sidebar Controls and Metadata -->
+            <div class="sidebar">
+                
+                <!-- Track Date Filter Card -->
+                <div class="card">
+                    <h2 class="card-title">📅 Filter Track Path</h2>
+                    <form class="filter-form" method="GET" action="/">
+                        <div class="form-group">
+                            <label for="startDate">Select Date</label>
+                            <input type="date" id="startDate" name="startDate" value="{{ start_date }}" required>
+                        </div>
+                        <button type="submit" class="btn">Apply Filter</button>
+                        <a href="/" class="btn btn-secondary">Show Latest Available</a>
+                    </form>
+                </div>
+
+                <!-- Latest Live Coordinates Stats Card -->
+                <div class="card">
+                    <h2 class="card-title">📡 Tracker Status</h2>
+                    {% if latest_msg %}
+                    <div class="stats-list">
+                        <div class="stat-item">
+                            <span class="stat-label">Device Name</span>
+                            <span class="stat-value" style="color: #fff;">{{ latest_msg.messengerName }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Device Model</span>
+                            <span class="stat-value">{{ latest_msg.modelId }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Last Transmission</span>
+                            <span class="stat-value" style="font-size: 0.85rem;">{{ latest_msg.dateTime }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Latest Coordinates</span>
+                            <span class="stat-value" style="color: var(--accent-blue);">{{ latest_msg.latitude }}, {{ latest_msg.longitude }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Altitude</span>
+                            <span class="stat-value">{{ latest_msg.altitude | int }} m</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Battery Level</span>
+                            <span class="stat-value">
+                                {% if latest_msg.batteryState == 'GOOD' %}
+                                    <span class="badge badge-good">Good</span>
+                                {% elif latest_msg.batteryState == 'LOW' %}
+                                    <span class="badge badge-low">Low</span>
+                                {% else %}
+                                    <span class="badge" style="background: rgba(255,255,255,0.1); color: var(--text-muted);">{{ latest_msg.batteryState }}</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Last Message Type</span>
+                            <span class="stat-value">
+                                <span class="badge badge-type">{{ latest_msg.messageType }}</span>
+                            </span>
+                        </div>
+                        {% if latest_msg.messageContent %}
+                        <div class="stat-item" style="flex-direction: column; gap: 4px; border-bottom: none;">
+                            <span class="stat-label">Custom Message Content</span>
+                            <span class="stat-value" style="text-align: left; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 8px; font-weight: normal; font-size: 0.9rem; margin-top: 4px; display: block; width: 100%;">
+                                "{{ latest_msg.messageContent }}"
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div style="color: var(--text-muted); text-align: center; padding: 10px 0;">
+                        No tracking data fetched yet. The application will start scraping momentarily.
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <!-- Map View Section -->
+            <div class="map-container">
+                <!-- If dates are specified, load Folium Map in Iframe -->
+                <iframe 
+                    class="map-iframe" 
+                    src="{{ url_for('map_view', startDate=start_date) }}"
+                    allowfullscreen>
+                </iframe>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
