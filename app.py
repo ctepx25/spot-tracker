@@ -236,8 +236,42 @@ def scrape_spot_feed():
                 new_count += 1
                 logger.info(f"Saved new message ID {msg_id} (Type: {new_msg.messageType})")
 
-                # Send Telegram notifications for TRACK or any Custom User messages (CUSTOM, OK, etc.)
-                if new_msg.messageType == "TRACK" or new_msg.messageType in ["CUSTOM", "OK"]:
+                # Send Telegram notifications under specific conditions:
+                # - Send on every custom message (CUSTOM, OK).
+                # - Send for TRACK message only if it is the first TRACK of the day
+                #   OR if the latest message immediately preceding it was a custom message (CUSTOM, OK).
+                should_notify = False
+                if new_msg.messageType in ["CUSTOM", "OK"]:
+                    should_notify = True
+                elif new_msg.messageType == "TRACK":
+                    # Check if first TRACK event of the day
+                    dt = datetime.fromtimestamp(new_msg.unixTime, tz=timezone.utc)
+                    date_str = dt.strftime("%Y-%m-%d")
+                    start_unix, _ = parse_date_to_unix_bounds(date_str)
+                    
+                    is_first_track = False
+                    if start_unix is not None:
+                        earlier_track = Message.query.filter(
+                            Message.messageType == "TRACK",
+                            Message.unixTime >= start_unix,
+                            Message.unixTime < new_msg.unixTime
+                        ).first()
+                        if earlier_track is None:
+                            is_first_track = True
+
+                    # Check if latest event before this one is custom (CUSTOM, OK)
+                    prev_msg = Message.query.filter(
+                        Message.unixTime < new_msg.unixTime
+                    ).order_by(Message.unixTime.desc()).first()
+                    
+                    is_prev_custom = False
+                    if prev_msg and prev_msg.messageType in ["CUSTOM", "OK"]:
+                        is_prev_custom = True
+                        
+                    if is_first_track or is_prev_custom:
+                        should_notify = True
+
+                if should_notify:
                     send_telegram_alert(new_msg)
 
             except Exception as e:
@@ -295,10 +329,40 @@ def index():
     # Get latest message metadata to show quick stats on dashboard
     latest_msg = Message.query.order_by(Message.unixTime.desc()).first()
 
+    # Query all events of the selected date to display at the bottom of the page
+    start_unix, _ = parse_date_to_unix_bounds(start_date)
+    events_data = []
+    if start_unix is not None:
+        end_unix = start_unix + 86400
+        events = Message.query.filter(
+            Message.unixTime >= start_unix,
+            Message.unixTime <= end_unix
+        ).order_by(Message.unixTime.asc()).all()
+
+        for event in events:
+            friendly_time = event.dateTime
+            try:
+                dt = datetime.strptime(event.dateTime, "%Y-%m-%dT%H:%M:%S%z")
+                friendly_time = dt.strftime("%Y-%m-%d %H:%M:%S UTC")
+            except Exception:
+                pass
+            
+            events_data.append({
+                "id": event.id,
+                "time": friendly_time,
+                "type": event.messageType,
+                "latitude": event.latitude,
+                "longitude": event.longitude,
+                "altitude": int(event.altitude),
+                "battery": event.batteryState,
+                "content": event.messageContent or ""
+            })
+
     return render_template(
         "index.html",
         start_date=start_date,
-        latest_msg=latest_msg
+        latest_msg=latest_msg,
+        events=events_data
     )
 
 

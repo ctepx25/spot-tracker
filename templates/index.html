@@ -29,13 +29,11 @@
                 
                 <!-- Track Date Filter Card -->
                 <div class="card">
-                    <h2 class="card-title">📅 Filter Track Path</h2>
                     <form class="filter-form" method="GET" action="/">
                         <div class="form-group">
                             <label for="startDate">Select Date</label>
-                            <input type="date" id="startDate" name="startDate" value="{{ start_date }}" required>
+                            <input type="date" id="startDate" name="startDate" value="{{ start_date }}" onchange="this.form.submit()" required>
                         </div>
-                        <button type="submit" class="btn">Apply Filter</button>
                         <a href="/" class="btn btn-secondary">Show Latest Available</a>
                     </form>
                 </div>
@@ -112,6 +110,66 @@
             </div>
 
         </div>
+
+        <!-- All Daily Events Log Card -->
+        <div class="card events-card">
+            <h2 class="card-title">📋 Daily Events Log ({{ start_date }})</h2>
+            {% if events %}
+            <div class="events-table-wrapper">
+                <table class="events-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Coordinates</th>
+                            <th>Altitude</th>
+                            <th>Battery</th>
+                            <th>Message / Content</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in events %}
+                        <tr>
+                            <td><span class="stat-value-white">{{ event.time }}</span></td>
+                            <td>
+                                {% if event.type in ["CUSTOM", "OK"] %}
+                                    <span class="badge badge-good">{{ event.type }}</span>
+                                {% else %}
+                                    <span class="badge badge-type">{{ event.type }}</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="stat-value-blue">{{ event.latitude }}, {{ event.longitude }}</span></td>
+                            <td>{{ event.altitude }} m</td>
+                            <td>
+                                {% if event.battery == 'GOOD' %}
+                                    <span class="badge badge-good">Good</span>
+                                {% elif event.battery == 'LOW' %}
+                                    <span class="badge badge-low">Low</span>
+                                {% else %}
+                                    <span class="badge">{{ event.battery }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if event.content %}
+                                    <span class="event-msg-text">
+                                        "{{ event.content }}"
+                                    </span>
+                                {% else %}
+                                    <span style="color: var(--text-muted); font-style: italic;">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="events-empty">
+                No events recorded on this date.
+            </div>
+            {% endif %}
+        </div>
+
     </div>
 
 </body>
