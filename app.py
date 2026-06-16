@@ -23,8 +23,15 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 # Initialize Flask
 app = Flask(__name__)
+
+# Apply ProxyFix middleware so the app handles headers correctly when run behind an Nginx reverse proxy
+app.wsgi_app = ProxyFix(
+    app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1
+)
 
 # Configure Database
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///data/spot_tracker.db")
