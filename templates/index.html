@@ -25,12 +25,12 @@
                 
                 <!-- Track Date Filter Card -->
                 <div class="card">
-                    <form class="filter-form" method="GET" action="/">
+                    <form class="filter-form" method="GET" action="/spot">
                         <div class="form-group">
                             <label for="startDate">Select Date</label>
                             <input type="date" id="startDate" name="startDate" value="{{ start_date }}" onchange="this.form.submit()" required>
                         </div>
-                        <a href="/" class="btn btn-secondary">Show Latest Available</a>
+                        <a href="/spot" class="btn btn-secondary">Show Latest Available</a>
                     </form>
                 </div>
 
