@@ -129,7 +129,7 @@ def send_telegram_alert(msg):
             f"📅 *Time:* {friendly_time}\n"
             f"📍 *Coordinates:* `{msg.latitude}, {msg.longitude}`\n\n"
             f"🗺️ [View on Google Maps]({google_maps_url})\n"
-            f"🌐 [Tracker Dashboard](https://livetrackboard.ydns.eu/)"
+            f"🌐 [Tracker Dashboard](https://livetrackboard.ydns.eu/spot)"
         )
     else:  # CUSTOM, OK, etc.
         content = msg.messageContent or "No custom text content provided."
@@ -141,7 +141,7 @@ def send_telegram_alert(msg):
             f"📅 *Time:* {friendly_time}\n"
             f"📍 *Coordinates:* `{msg.latitude}, {msg.longitude}`\n\n"
             f"🗺️ [View on Google Maps]({google_maps_url})\n"
-            f"🌐 [Tracker Dashboard](https://livetrackboard.ydns.eu/)"
+            f"🌐 [Tracker Dashboard](https://livetrackboard.ydns.eu/spot)"
         )
 
     try:
