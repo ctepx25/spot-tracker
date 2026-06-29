@@ -121,7 +121,7 @@ def send_telegram_alert(msg):
 
     google_maps_url = f"https://maps.google.com/?q={msg.latitude},{msg.longitude}"
 
-    if msg.messageType == "TRACK":
+    if msg.messageType == "UNLIMITED-TRACK":
         text = (
             f"🛰️ *Sattelite Tracker Started!*\n\n"
             f"👤 *Device:* {msg.messengerName} ({msg.modelId})\n"
@@ -242,7 +242,7 @@ def scrape_spot_feed():
                 should_notify = False
                 if new_msg.messageType in ["CUSTOM", "OK"]:
                     should_notify = True
-                elif new_msg.messageType == "TRACK":
+                elif new_msg.messageType == "UNLIMITED-TRACK":
                     # Check if first TRACK event of the day
                     dt = datetime.fromtimestamp(new_msg.unixTime, tz=timezone.utc)
                     date_str = dt.strftime("%Y-%m-%d")
@@ -251,7 +251,7 @@ def scrape_spot_feed():
                     is_first_track = False
                     if start_unix is not None:
                         earlier_track = Message.query.filter(
-                            Message.messageType == "TRACK",
+                            Message.messageType == "UNLIMITED-TRACK",
                             Message.unixTime >= start_unix,
                             Message.unixTime < new_msg.unixTime
                         ).first()
